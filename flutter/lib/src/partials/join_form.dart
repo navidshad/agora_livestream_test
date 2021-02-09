@@ -2,16 +2,16 @@ import 'package:agora_flutter_test/src/services/token_generator.dart';
 import 'package:agora_flutter_test/src/widgets/button.dart';
 import 'package:flutter/material.dart';
 
-class CreateLiveForm extends StatefulWidget {
-  CreateLiveForm({Key key, this.onCreated}) : super(key: key);
+class JoinLiveForm extends StatefulWidget {
+  JoinLiveForm({Key key, this.onFind}) : super(key: key);
 
-  final Function(String token) onCreated;
+  final Function(String token, String room) onFind;
 
   @override
-  _CreateLiveFormState createState() => _CreateLiveFormState();
+  _JoinLiveFormState createState() => _JoinLiveFormState();
 }
 
-class _CreateLiveFormState extends State<CreateLiveForm> {
+class _JoinLiveFormState extends State<JoinLiveForm> {
   final TokenGeneratorService tokenGenerator = TokenGeneratorService();
   String roomName;
   String token;
@@ -26,20 +26,21 @@ class _CreateLiveFormState extends State<CreateLiveForm> {
           autofocus: true,
           decoration: InputDecoration(
             labelText: 'Room name',
-            hintText: 'people can find you with this.',
+            hintText: 'A unique title',
+            errorText: hasError ? errorMessage : null,
           ),
           onChanged: (value) => roomName = value,
         ),
         CustomButton(
-          label: 'Create Live',
-          onPressed: onCreate,
+          label: 'Join',
+          onPressed: onJoin,
           loading: pending,
         )
       ],
     );
   }
 
-  void onCreate() {
+  void onJoin() {
     if (roomName.isEmpty) {
       return;
     }
@@ -48,7 +49,7 @@ class _CreateLiveFormState extends State<CreateLiveForm> {
       pending = true;
     });
 
-    tokenGenerator.generate(roomName).then((value) {
+    tokenGenerator.findRoom(roomName).then((value) {
       token = value;
     }).catchError((error) {
       hasError = true;
@@ -59,7 +60,7 @@ class _CreateLiveFormState extends State<CreateLiveForm> {
       });
 
       if (token.isNotEmpty) {
-        widget.onCreated(token);
+        widget.onFind(token, roomName);
       }
     });
   }

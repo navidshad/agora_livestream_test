@@ -27,6 +27,7 @@ class _CreateLiveFormState extends State<CreateLiveForm> {
           decoration: InputDecoration(
             labelText: 'Room name',
             hintText: 'people can find you with this.',
+            errorText: hasError ? errorMessage : null,
           ),
           onChanged: (value) => roomName = value,
         ),

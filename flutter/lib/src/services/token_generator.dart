@@ -16,4 +16,16 @@ class TokenGeneratorService {
       }
     });
   }
+
+  Future<String> findRoom(String room) {
+    var url = Config.ServerBaseURL + '/getToken/?channelName=$room';
+    return _http.get(url).then((response) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Map body = convert.jsonDecode(response.body);
+        return body['key'] as String;
+      } else {
+        throw response;
+      }
+    });
+  }
 }

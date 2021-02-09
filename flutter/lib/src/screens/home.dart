@@ -1,6 +1,8 @@
 import 'package:agora_flutter_test/src/partials/create_form.dart';
-import 'package:agora_flutter_test/src/screens/broadcaster.dart';
+import 'package:agora_flutter_test/src/partials/join_form.dart';
+import 'package:agora_flutter_test/src/services/custom_navigator.dart';
 import 'package:agora_flutter_test/src/widgets/button.dart';
+import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,12 +13,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  CustomNavigator navigator = CustomNavigator();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: LayoutBuilder(
       builder: (context, constraint) {
-        double totalHeight = constraint.maxHeight;
-        double totalWidth = constraint.maxWidth;
+        var totalHeight = constraint.maxHeight;
+        var totalWidth = constraint.maxWidth;
 
         return Column(
           children: [
@@ -26,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // color: Colors.blue,
               alignment: Alignment.center,
               child: Text(
-                "Agora Test".toUpperCase(),
+                'Agora Test'.toUpperCase(),
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
@@ -79,38 +83,46 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (allowToCreate) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (newPageContext) {
-          return BroadcasterScreen(
-            channelName: roomName,
-            token: token,
-          );
-        }),
+      await navigator.goToCall(
+        context: context,
+        channelName: roomName,
+        token: token,
+        role: ClientRole.Broadcaster,
       );
     }
   }
 
-  void onJoinLive(BuildContext context) {
-    showDialog(
+  void onJoinLive(BuildContext context) async {
+    String token;
+    String roomName;
+    var allowToJoin = false;
+
+    await showDialog(
       context: context,
       builder: (dialogContext) {
         return SimpleDialog(
           contentPadding: EdgeInsets.all(10),
           children: [
-            TextField(
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Room name',
-                hintText: 'A unique title',
-              ),
-            ),
-            CustomButton(
-              label: 'Join',
-              onPressed: () {},
+            JoinLiveForm(
+              onFind: (generatedToken, room) {
+                token = generatedToken;
+                roomName = room;
+                allowToJoin = true;
+                Navigator.of(dialogContext).pop();
+              },
             )
           ],
         );
       },
     );
+
+    if (allowToJoin) {
+      await navigator.goToCall(
+        context: context,
+        channelName: roomName,
+        token: token,
+        role: ClientRole.Audience,
+      );
+    }
   }
 }
