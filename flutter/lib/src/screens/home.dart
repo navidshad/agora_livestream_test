@@ -1,3 +1,5 @@
+import 'package:agora_flutter_test/src/partials/create_form.dart';
+import 'package:agora_flutter_test/src/screens/broadcaster.dart';
 import 'package:agora_flutter_test/src/widgets/button.dart';
 import 'package:flutter/material.dart';
 
@@ -52,28 +54,40 @@ class _HomeScreenState extends State<HomeScreen> {
     ));
   }
 
-  void onGoLive(BuildContext context) {
-    showDialog(
+  void onGoLive(BuildContext context) async {
+    String token;
+    String roomName;
+    var allowToCreate = false;
+
+    await showDialog(
       context: context,
       builder: (dialogContext) {
         return SimpleDialog(
           contentPadding: EdgeInsets.all(10),
           children: [
-            TextField(
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Room name',
-                hintText: 'people can find you with this.',
-              ),
-            ),
-            CustomButton(
-              label: 'Create Live',
-              onPressed: () {},
+            CreateLiveForm(
+              onCreated: (generatedToken, room) {
+                token = generatedToken;
+                roomName = room;
+                allowToCreate = true;
+                Navigator.of(dialogContext).pop();
+              },
             )
           ],
         );
       },
     );
+
+    if (allowToCreate) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (newPageContext) {
+          return BroadcasterScreen(
+            channelName: roomName,
+            token: token,
+          );
+        }),
+      );
+    }
   }
 
   void onJoinLive(BuildContext context) {
