@@ -1,7 +1,7 @@
-import 'package:agora_flutter_test/src/partials/create_form.dart';
-import 'package:agora_flutter_test/src/partials/join_form.dart';
-import 'package:agora_flutter_test/src/services/custom_navigator.dart';
-import 'package:agora_flutter_test/src/widgets/button.dart';
+import 'package:agora_flutter_navidshad/src/partials/create_form.dart';
+import 'package:agora_flutter_navidshad/src/partials/join_form.dart';
+import 'package:agora_flutter_navidshad/src/services/custom_navigator.dart';
+import 'package:agora_flutter_navidshad/src/widgets/button.dart';
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:flutter/material.dart';
 

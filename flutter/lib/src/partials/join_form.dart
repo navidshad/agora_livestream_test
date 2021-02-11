@@ -1,5 +1,5 @@
-import 'package:agora_flutter_test/src/services/token_generator.dart';
-import 'package:agora_flutter_test/src/widgets/button.dart';
+import 'package:agora_flutter_navidshad/src/services/token_generator.dart';
+import 'package:agora_flutter_navidshad/src/widgets/button.dart';
 import 'package:flutter/material.dart';
 
 class JoinLiveForm extends StatefulWidget {
@@ -13,9 +13,9 @@ class JoinLiveForm extends StatefulWidget {
 
 class _JoinLiveFormState extends State<JoinLiveForm> {
   final TokenGeneratorService tokenGenerator = TokenGeneratorService();
-  String roomName;
-  String token;
-  String errorMessage;
+  String roomName = '';
+  String token = '';
+  String errorMessage = '';
   bool hasError = false;
   bool pending = false;
   @override

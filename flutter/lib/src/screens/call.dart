@@ -4,6 +4,8 @@ import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:share/share.dart';
 
 import '../config.dart';
 
@@ -57,6 +59,8 @@ class _CallScreenState extends State<CallScreen> {
     await _initAgoraRtcEngine();
     _addAgoraEventHandlers();
 
+    await handlePermissions();
+
     var configuration = VideoEncoderConfiguration();
     configuration.dimensions = VideoDimensions(160, 120);
     configuration.bitrate = 130;
@@ -65,7 +69,6 @@ class _CallScreenState extends State<CallScreen> {
     await _engine.joinChannel(widget.token, widget.channelName, null, 0);
   }
 
-  /// Create agora sdk instance and initialize
   Future<void> _initAgoraRtcEngine() async {
     _engine = await RtcEngine.create(Config.APP_ID);
     await _engine.enableVideo();
@@ -73,7 +76,18 @@ class _CallScreenState extends State<CallScreen> {
     await _engine.setClientRole(widget.role);
   }
 
-  /// Add agora event handlers
+  Future<void> handlePermissions() async {
+    return Permission.camera
+        .request()
+        .then((value) => Permission.microphone.request())
+        .catchError((onError) {
+      setState(() {
+        final info = 'permission error: $onError';
+        _infoStrings.add(info);
+      });
+    });
+  }
+
   void _addAgoraEventHandlers() {
     _engine.setEventHandler(RtcEngineEventHandler(error: (code) {
       setState(() {
@@ -176,50 +190,81 @@ class _CallScreenState extends State<CallScreen> {
 
   /// Toolbar layout
   Widget _toolbar() {
-    if (widget.role == ClientRole.Audience) return Container();
+    var buttons = <Widget>[];
+
+    if (widget.role == ClientRole.Audience) {
+      buttons = [
+        RawMaterialButton(
+          onPressed: _onShare,
+          child: Icon(
+            Icons.share,
+            color: Colors.black,
+            size: 20.0,
+          ),
+          shape: CircleBorder(),
+          elevation: 2.0,
+          fillColor: Colors.grey,
+        ),
+      ];
+    } else {
+      buttons = [
+        RawMaterialButton(
+          onPressed: _onShare,
+          child: Icon(
+            Icons.share,
+            color: Colors.black,
+            size: 20.0,
+          ),
+          shape: CircleBorder(),
+          elevation: 2.0,
+          fillColor: Colors.grey,
+        ),
+        RawMaterialButton(
+          onPressed: _onToggleMute,
+          child: Icon(
+            muted ? Icons.mic_off : Icons.mic,
+            color: muted ? Colors.white : Colors.blueAccent,
+            size: 20.0,
+          ),
+          shape: CircleBorder(),
+          elevation: 2.0,
+          fillColor: muted ? Colors.blueAccent : Colors.white,
+          padding: const EdgeInsets.all(12.0),
+        ),
+        RawMaterialButton(
+          onPressed: () => _onCallEnd(context),
+          child: Icon(
+            Icons.call_end,
+            color: Colors.white,
+            size: 35.0,
+          ),
+          shape: CircleBorder(),
+          elevation: 2.0,
+          fillColor: Colors.redAccent,
+          // padding: const EdgeInsets.all(15.0),
+        ),
+        RawMaterialButton(
+          onPressed: _onSwitchCamera,
+          child: Icon(
+            Icons.switch_camera,
+            color: Colors.blueAccent,
+            size: 20.0,
+          ),
+          shape: CircleBorder(),
+          elevation: 2.0,
+          fillColor: Colors.white,
+          // padding: const EdgeInsets.all(12.0),
+        )
+      ].reversed.toList();
+    }
+
     return Container(
-      alignment: Alignment.bottomCenter,
+      alignment: Alignment.topLeft,
+      color: Colors.transparent,
       padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Row(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          RawMaterialButton(
-            onPressed: _onToggleMute,
-            child: Icon(
-              muted ? Icons.mic_off : Icons.mic,
-              color: muted ? Colors.white : Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: muted ? Colors.blueAccent : Colors.white,
-            padding: const EdgeInsets.all(12.0),
-          ),
-          RawMaterialButton(
-            onPressed: () => _onCallEnd(context),
-            child: Icon(
-              Icons.call_end,
-              color: Colors.white,
-              size: 35.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: Colors.redAccent,
-            padding: const EdgeInsets.all(15.0),
-          ),
-          RawMaterialButton(
-            onPressed: _onSwitchCamera,
-            child: Icon(
-              Icons.switch_camera,
-              color: Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: Colors.white,
-            padding: const EdgeInsets.all(12.0),
-          )
-        ],
+        children: buttons,
       ),
     );
   }
@@ -274,6 +319,12 @@ class _CallScreenState extends State<CallScreen> {
     );
   }
 
+  void _onShare() {
+    var message = "Hey I'm in an amazing live stream, join us!\n";
+    var link = 'https://agora.test/join?channel=' + widget.channelName;
+    Share.share(message + link);
+  }
+
   void _onCallEnd(BuildContext context) {
     Navigator.pop(context);
   }
@@ -294,15 +345,12 @@ class _CallScreenState extends State<CallScreen> {
     Widget views;
 
     if (!engineCreated) {
-      views = CircularProgressIndicator();
+      views = Center(child: CircularProgressIndicator());
     } else {
       views = _viewRows();
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Agora Flutter QuickStart'),
-      ),
       backgroundColor: Colors.black,
       body: Center(
         child: Stack(

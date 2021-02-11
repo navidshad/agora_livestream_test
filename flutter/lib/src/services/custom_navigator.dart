@@ -1,5 +1,5 @@
-import 'package:agora_flutter_test/src/screens/call.dart';
-import 'package:agora_flutter_test/src/services/token_generator.dart';
+import 'package:agora_flutter_navidshad/src/screens/call.dart';
+import 'package:agora_flutter_navidshad/src/services/token_generator.dart';
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

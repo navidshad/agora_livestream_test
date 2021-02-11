@@ -1,6 +1,6 @@
-import 'package:agora_flutter_test/src/screens/home.dart';
-import 'package:agora_flutter_test/src/services/custom_navigator.dart';
-import 'package:agora_flutter_test/src/services/deep_link.dart';
+import 'package:agora_flutter_navidshad/src/screens/home.dart';
+import 'package:agora_flutter_navidshad/src/services/custom_navigator.dart';
+import 'package:agora_flutter_navidshad/src/services/deep_link.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -17,9 +17,9 @@ class MyApp extends StatelessWidget {
     deepLinkService.state.listen(navigator.goToCallFromLink);
 
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Agora Test',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.grey,
       ),
       initialRoute: '/home',
       routes: {
